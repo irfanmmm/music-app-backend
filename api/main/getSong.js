@@ -8,6 +8,14 @@ const GetSong = async (req, res) => {
 
     console.log(id);
 
+    if (Number.isNaN(Number(id))) {
+        return res.json({
+            status: false,
+            message: 'Faild',
+            error: 'Id is not valid',
+        })
+    }
+
     try {
         const db = await DataBase()
 
