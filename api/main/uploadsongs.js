@@ -41,11 +41,11 @@ const getLocalIpAddress = () => {
 const uploadsongs = async (req, res) => {
   let name = req.body.name;
   let artist = req.body.artist;
-  let image = req.files;
-  console.log(req);
-  
-  let song = req.file;
+  let image = req.files?.image[0]
+  let song = req.files?.song[0]
 
+  
+  console.log(song);
   if (!name || !image || !song || !artist) {
     return res.json({
       status: false,
