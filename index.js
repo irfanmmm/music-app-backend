@@ -42,7 +42,7 @@ app.use(
 );
 
 const corsOptions = {
-  origin: "http://192.168.43.179:3000", // Replace with the origin you want to allow
+  origin: "https://music-app-backend-sepia.vercel.app", // Replace with the origin you want to allow
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type,Authorization",
 };
