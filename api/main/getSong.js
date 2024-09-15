@@ -2,11 +2,11 @@ const jwt = require("jsonwebtoken");
 const DataBase = require("../../db/db");
 
 const GetSong = async (req, res) => {
+
     let id = req.query.id
     let token = req.headers.authorization;
 
 
-    console.log(id);
 
     if (Number.isNaN(Number(id))) {
         return res.json({
