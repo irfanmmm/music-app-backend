@@ -3,12 +3,11 @@ const Vibrant = require("node-vibrant");
 const multer = require("multer");
 const path = require("path");
 const os = require("os");
+const tinycolor = require("tinycolor2");
 
-async function extractColorsFromImage(url) {
-  console.log("Dominant Colors:", url);
+async function extractDarkColorsFromImage(url) {
+  console.log("Extracting Dark Dominant Colors from:", url);
   try {
-    // Download the image locally (Vibrant works with local files)
-
     // Extract the color palette from the image
     const palette = await Vibrant.from(url).getPalette();
 
@@ -17,15 +16,22 @@ async function extractColorsFromImage(url) {
     swatches.sort((a, b) => b.getPopulation() - a.getPopulation());
 
     // Get the top 2 dominant colors
-    const dominantColors = swatches
-      .slice(0, 2)
-      .map((swatch) => swatch.getHex());
-    return dominantColors;
+    const dominantColors = swatches.slice(0, 2).map((swatch) => {
+      const hex = swatch.getHex();
+
+      // Darken the color using tinycolor2
+      const darkColor = tinycolor(hex).darken(30).toHexString(); // Darken by 30% (adjust as needed)
+      return darkColor;
+    });
+
+    console.log(dominantColors, "this is dominant colors -------------");
+
+    return dominantColors?.reverse();
   } catch (err) {
     console.error("Error extracting colors:", err);
+    return [];
   }
 }
-
 const getLocalIpAddress = () => {
   const interfaces = os.networkInterfaces();
   for (const interfaceName in interfaces) {
@@ -41,12 +47,13 @@ const getLocalIpAddress = () => {
 const uploadsongs = async (req, res) => {
   let name = req.body.name;
   let artist = req.body.artist;
-  let image = req.files?.image[0]
-  let song = req.files?.song[0]
+  let image = req.files?.image[0];
+  let song = req.files?.song[0];
 
-  
   console.log(song);
-  if (!name || !image || !song || !artist) {
+
+  console.log(song);
+  if (!image || !song || !artist) {
     return res.json({
       status: false,
       message: "Please fill the form",
@@ -55,18 +62,14 @@ const uploadsongs = async (req, res) => {
 
   const uniqueId = Date.now();
 
-  const pathofimage = `${
-    req.protocol
-  }://${getLocalIpAddress()}:3000/uploads/images/${image.filename}`;
-  const pathofsong = `${
-    req.protocol
-  }://${getLocalIpAddress()}:3000/uploads/songs/${song.filename}`;
-  const dominent_colors = await extractColorsFromImage(pathofimage);
+  const pathofimage = `/uploads/images/${image.filename}`;
+  const pathofsong = `/uploads/songs/${song.filename}`;
+  const dominent_colors = await extractDarkColorsFromImage(pathofimage);
 
   try {
     const db = await DataBase();
     const allsongsdetails = await db.collection("allsongsdetails").insertOne({
-      title: name,
+      title: name ?? song?.originalname,
       artist: artist,
       _id: uniqueId,
       artwork: pathofimage,

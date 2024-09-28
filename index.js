@@ -42,7 +42,7 @@ app.use(
 );
 
 const corsOptions = {
-  origin: "https://music-app-backend-sepia.vercel.app", // Replace with the origin you want to allow
+  origin: "http://192.168.128.179:3000", // Replace with the origin you want to allow
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type,Authorization",
 };
@@ -57,10 +57,10 @@ app.use(upload);
 // app.use(upload.single("song"));
 app.post("/uploadsongs", uploadsongs);
 
+app.use(AuthCheck)
 // responses
 app.get("/userdetails", userdetails);
 
-// app.use(AuthCheck)
 // get All songs
 app.get("/getallsongdeatils", GetallSongDeatils);
 app.get("/getsong", GetSong);
