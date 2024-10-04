@@ -6,6 +6,8 @@ const os = require("os");
 const tinycolor = require("tinycolor2");
 
 async function extractDarkColorsFromImage(url) {
+  console.log(url);
+
   console.log("Extracting Dark Dominant Colors from:", url);
   try {
     // Extract the color palette from the image
@@ -45,6 +47,7 @@ const getLocalIpAddress = () => {
 };
 
 const uploadsongs = async (req, res) => {
+  const hostname = req.headers.host;
   let name = req.body.name;
   let artist = req.body.artist;
   let image = req.files?.image[0];
@@ -64,17 +67,22 @@ const uploadsongs = async (req, res) => {
 
   const pathofimage = `/uploads/images/${image.filename}`;
   const pathofsong = `/uploads/songs/${song.filename}`;
-  const dominent_colors = await extractDarkColorsFromImage(pathofimage);
+  console.log(hostname + pathofimage, "this is a song");
+
+  const dominent_colors = await extractDarkColorsFromImage(
+    "http://" + hostname + pathofimage
+  );
 
   try {
     const db = await DataBase();
-    const allsongsdetails = await db.collection("allsongsdetails").insertOne({
+    await db.collection("allsongsdetails").insertOne({
       title: name ?? song?.originalname,
       artist: artist,
       _id: uniqueId,
       artwork: pathofimage,
       url: pathofsong,
       colors: dominent_colors,
+      like: 0,
     });
 
     res.json({

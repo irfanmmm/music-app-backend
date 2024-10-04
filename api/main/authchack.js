@@ -5,7 +5,6 @@ const AuthCheck = async (req, res, next) => {
   let token = req.headers.authorization;
   try {
     let validatetoken = jwt.verify(token, "music-application");
-
     next();
   } catch (error) {
     res.status(401).json({

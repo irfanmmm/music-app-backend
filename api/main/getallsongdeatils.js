@@ -7,6 +7,9 @@ const GetallSongDeatils = async (req, res) => {
         const db = await DataBase()
         const songdetails = await db.collection('allsongsdetails').find().toArray()
 
+        console.log(songdetails);
+        
+
         res.json({
             status: true,
             message: 'Success',
