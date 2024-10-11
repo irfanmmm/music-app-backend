@@ -12,16 +12,21 @@ const likedSongs = async (req, res) => {
         .findOne({ user });
 
       const songids = userlikedcolloction.songs;
+      console.log(songids, 'songs=================');
+
 
       const getallsongs = await db
         .collection("allsongsdetails")
         .find({ _id: { $in: songids } })
         .toArray();
 
+        
+
       if (getallsongs.length > 0) {
         res.json({
           status: true,
           message: "Success",
+          data: getallsongs,
         });
         return;
       } else {

@@ -2,25 +2,25 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    if (file.mimetype === "image/png" || file.mimetype === "image/jpeg" || file.mimetype === "image/jpg") {
-      return cb(null, "./uploads/images");
-    } else if (file.mimetype === "audio/mpeg") {
+    if (file.mimetype === "audio/mpeg" || file.mimetype === "audio/mp3") {
       return cb(null, "./uploads/songs");
+    } else {
+      return cb(
+        new Error("Invalid file type! Only mp3 and mpeg files are allowed.")
+      );
     }
   },
   filename: function (req, file, cb) {
-    
-    if (file.mimetype === "image/png" || file.mimetype === "image/jpeg" || file.mimetype === "image/jpg") {
-      return cb(null, `${Date.now()}.png`);
-    } else if (file.mimetype === "audio/mpeg") {
+    if (file.mimetype === "audio/mpeg" || file.mimetype === "audio/mp3") {
       return cb(null, `${Date.now()}.mp3`);
+    } else {
+      return cb(
+        new Error("Invalid file type! Only mp3 and mpeg files are allowed.")
+      );
     }
   },
 });
 
-const upload = multer({ storage }).fields([
-  { name: "image", maxCount: 1 }, // maxCount specifies the maximum number of files for this field
-  { name: "song", maxCount: 1 },
-]);
+const upload = multer({ storage }).fields([{ name: "song", maxCount: 1 }]);
 
 module.exports = upload;
