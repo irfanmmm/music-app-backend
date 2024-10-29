@@ -1,4 +1,3 @@
-const express = require("express");
 const DataBase = require("../../db/db");
 const jwt = require("jsonwebtoken");
 
@@ -6,6 +5,7 @@ const signup = async function (req, res) {
   let email = req.body.email;
   let profile = req.body.profile;
   let username = req.body.username;
+  let notificationid = req.body.notificationid;
   let token = jwt.sign({ email, profile, username }, "music-application");
   try {
     const db = await DataBase();
@@ -13,6 +13,7 @@ const signup = async function (req, res) {
       profile,
       email,
       username,
+      notificationid,
     });
     res.json({
       status: true,
@@ -21,12 +22,12 @@ const signup = async function (req, res) {
     });
   } catch (error) {
     console.log(error);
-    let message = error.code === 11000 ? "User already exist" : error.errmsg;
+    let message =
+      error.code === 11000 ? "User already exist" : error.toString();
 
     res.json({
       status: false,
       message,
-      data: token ? token : null,
     });
   }
 };

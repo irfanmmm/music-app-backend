@@ -16,6 +16,7 @@ const GetSong = require("./api/main/getSong");
 const likeSong = require("./api/main/likeSong");
 const likeSongwithSoket = require("./api/main/likeWithWebSoket");
 const health = require("./api/main/health");
+const notification = require("./api/main/notifications");
 
 const app = express();
 const server = http.createServer(app); // Create the HTTP server
@@ -36,6 +37,7 @@ const corsOptions = {
   allowedHeaders: "Content-Type,Authorization",
 };
 
+app.post("/send-notification", notification);
 app.use(cors(corsOptions));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -49,7 +51,7 @@ app.use(upload);
 app.post("/uploadsongs", uploadsongs);
 
 // get All songs
-app.get("/getallsongdeatils", GetallSongDeatils);
+app.post("/getallsongdeatils", GetallSongDeatils);
 app.get("/getsong", GetSong);
 
 app.use(AuthCheck);
@@ -62,6 +64,10 @@ app.get("/likedsongs", likedSongs);
 wss.on("connection", likeSongwithSoket);
 // get recent play song list
 app.get("/recent", recent);
+
+// notification service
+
+app.use("/notification", notification);
 
 server.listen(3000, () => {});
 

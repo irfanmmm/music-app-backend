@@ -1,27 +1,42 @@
-const jwt = require("jsonwebtoken");
 const DataBase = require("../../db/db");
 
 const GetallSongDeatils = async (req, res) => {
-    try {
+  console.log(req.body);
+  let page = Number(req.body.count) || 1;
+  let pageSize = Number(req.body.pageSize) || 10;
 
-        const db = await DataBase()
-        const songdetails = await db.collection('allsongsdetails').find().toArray()
+  try {
+    const db = await DataBase();
+    const songdetailsCollection = await db.collection("allsongsdetails");
 
-        console.log(songdetails);
-        
+    // fetch total count
+    const totalCount = await songdetailsCollection.countDocuments();
 
-        res.json({
-            status: true,
-            message: 'Success',
-            data: songdetails,
-        })
-    } catch (error) {
-        res.json({
-            status: false,
-            message: 'Faild',
-            error: error.toString(),
-        })
-    }
+    // Fetch the documents for the current page
+    const songdetails = await songdetailsCollection
+      .find()
+      .skip((page - 1) * pageSize) // Skip the documents of previous pages
+      .limit(pageSize) // Limit to the number of documents per page
+      .toArray();
+
+    res.json({
+      status: true,
+      message: "Success",
+      data: songdetails,
+      pagination: {
+        totalCount,
+        page,
+        pageSize,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    });
+  } catch (error) {
+    res.json({
+      status: false,
+      message: "Faild",
+      error: error.toString(),
+    });
+  }
 };
 
 module.exports = GetallSongDeatils;

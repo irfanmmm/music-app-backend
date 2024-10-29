@@ -28,7 +28,7 @@ const getSongMetadata = async (song) => {
   try {
     const v = await mm.loadMusicMetadata();
     const metadata = await v.parseFile(song);
-    console.log(metadata.common.title, "picture");
+    console.log(metadata, "picture");
 
     const imageName =
       Date.now() + "." + metadata.common.picture[0]?.format.split("/")[1];
@@ -54,61 +54,63 @@ const getSongMetadata = async (song) => {
       image: "/uploads/images/" + imageName,
     };
   } catch (error) {
-    console.log(error?.message);
+    console.log(error, "error =============");
   }
 };
 
 const uploadsongs = async (req, res) => {
   const hostname = req.headers.host;
-  let song = req.files?.song[0];
+  let songs = req.files;
 
-  if (!song) {
-    res.status(404).json({
+  if (songs.length > 0 || !songs) {
+    return res.status(404).json({
       status: false,
       error: "No song found",
     });
   }
 
-  const uniqueId = Date.now();
+  for (let i = 0; i < songs?.song?.length; i++) {
+    const song = songs?.song[i];
 
-  const pathofsong = `/uploads/songs/${song.filename}`;
-  const pathsong = path.resolve(
-    __dirname,
-    "../../uploads/songs",
-    song.filename
-  );
+    const uniqueId = Date.now();
+    const pathofsong = `/uploads/songs/${song.filename}`;
 
-  const metadata = await getSongMetadata(pathsong);
-
-  if (metadata?.image) {
-    var dominent_colors = await extractDarkColorsFromImage(
-      "http://" + hostname + metadata?.image
+    const pathsong = path.resolve(
+      __dirname,
+      "../../uploads/songs",
+      song.filename
     );
-  }
 
-  try {
+    const metadata = await getSongMetadata(pathsong);
+
+
+    if (metadata?.image) {
+      var dominent_colors = await extractDarkColorsFromImage(
+        "http://" + hostname + metadata?.image
+      );
+    }
     const db = await DataBase();
     await db.collection("allsongsdetails").insertOne({
-      title: metadata.title,
-      artist: metadata.artist,
+      title: metadata?.title,
+      artist: metadata?.artist,
       _id: uniqueId,
-      artwork: metadata.image,
+      artwork: metadata?.image,
       url: pathofsong,
       colors: dominent_colors,
       like: 0,
     });
-
-    res.json({
-      status: true,
-      message: "Success",
-    });
-  } catch (error) {
-    res.json({
-      status: false,
-      message: "Somthing Went Wrong",
-      error: error.toString(),
-    });
   }
+
+  res.json({
+    status: true,
+    message: "Success",
+  });
+  // } catch (error) {
+  //   res.json({
+  //     status: false,
+  //     message: "Somthing Went Wrong",
+  //     error: error.toString(),
+  //   });
 };
 
 module.exports = uploadsongs;
