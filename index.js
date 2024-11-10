@@ -47,7 +47,7 @@ app.get("/health", health);
 app.post("/signup", signup);
 
 // create songs
-app.use(upload);
+// app.use(upload);
 app.post("/uploadsongs", uploadsongs);
 
 // get All songs
@@ -69,6 +69,9 @@ app.get("/recent", recent);
 
 app.use("/notification", notification);
 
-server.listen(3000, () => {});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.warn("seriver running :" + PORT);
+});
 
 // v.v = 'xcvxcvxcv'

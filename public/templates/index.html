@@ -1,11 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Loading for index file</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Play</title>
+  </head>
+  <body>
+    <button id="playButton">Play Song</button>
+
+    <img src="https://drive.google.com/uc?id=1wX0rHh5gOc6IoXptDnXgLu2m_1RMvwkK&export=download" alt="">
+    <!-- <img src="https://drive.google.com/file/d/1A-SXJYApERy9Q07hw15JPXr5k5SMyT9F/view?usp=drivesdk" alt=""> -->
+
+    <script>
+      // This function will be triggered when the user clicks the button
+      document
+        .getElementById("playButton")
+        .addEventListener("click", function () {
+          const auddion = new Audio();
+          auddion.src =
+            "https://drive.google.com/file/d/1K4C4jTyxTHCRFYPzEK7KdPv8ue7T_thi/view?usp=sharing"; // Your Google Drive file link here // Correct file ID here
+
+          // Add error handling
+          auddion.onerror = function () {
+            console.error("Error loading audio file");
+          };
+
+          // Play the audio when the user clicks the button
+          auddion.play().catch((error) => {
+            console.error("Error playing audio:", error);
+          });
+        });
+    </script>
+  </body>
 </html>
