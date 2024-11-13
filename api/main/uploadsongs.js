@@ -3,7 +3,7 @@ const Vibrant = require("node-vibrant");
 const tinycolor = require("tinycolor2");
 const fs = require("fs");
 const https = require("https");
-const mm = require("music-metadata");
+const mm = require("music-metadata-browser");
 const path = require("path");
 const { Buffer } = require("buffer");
 const {
@@ -34,30 +34,29 @@ async function extractDarkColorsFromImage(buffer) {
 }
 
 const getSongMetadata = async (song, songId) => {
-  // try {
   return new Promise(async (resolve, reject) => {
     const uniqueId = Date.now();
-    const db = await DataBase();
+    const db = await (await DataBase()).collection("allsongsdetails");
     fetch(song)
       .then(async (res) => {
         try {
           const songpath = res.body;
-          const v = await mm.loadMusicMetadata();
-          const bufferStream = new Readable();
-          const metadata = await v.parseWebStream(songpath, "audio/mpeg");
+          const metadata = await mm.parseReadableStream(songpath, "audio/mpeg");
+          console.log(metadata.common);
+
           const existingSong = await db
-            .collection("allsongsdetails")
             .find({
               title: metadata.common.title,
             })
             .toArray();
-          console.log(existingSong);
+          console.log(existingSong.length);
 
           if (existingSong && existingSong.length > 0) {
             await onDeleteToDrive(songId);
-            await db.collection("allsongsdetails").deleteOne({
+            await db.deleteOne({
               url: song,
             });
+
             return reject("Duplicate Song Deleted");
           } else {
             if (metadata.common.picture.length === 0) {
@@ -70,10 +69,12 @@ const getSongMetadata = async (song, songId) => {
                 metadata.common.picture[0]?.format.split("/")[1] || "png";
             const buffer = Buffer.from(metadata.common.picture[0]?.data);
             var dominent_colors = await extractDarkColorsFromImage(buffer);
+            const bufferStream = new Readable();
             bufferStream.push(buffer);
             bufferStream.push(null);
             const reponse = await uploadImageFile(imageName, bufferStream);
             const imageurl = await getsingleFileUrl(reponse.id);
+
             resolve({
               _id: uniqueId,
               title: metadata?.common?.title,
@@ -86,6 +87,8 @@ const getSongMetadata = async (song, songId) => {
             });
           }
         } catch (error) {
+          console.log(error.message);
+
           reject("Meta Data not getting Error:", error);
         }
       })
@@ -106,7 +109,7 @@ const uploadsongs = async (req, res) => {
         error: "No song found",
       });
     }
-    const db = await DataBase();
+    const db = await (await DataBase()).collection("allsongsdetails");
 
     for (const pathofsong of allsongs.files) {
       try {
@@ -115,7 +118,7 @@ const uploadsongs = async (req, res) => {
           pathofsong.id
         );
 
-        await db.collection("allsongsdetails").insertOne({
+        await db.insertOne({
           ...metadata,
         });
       } catch (error) {

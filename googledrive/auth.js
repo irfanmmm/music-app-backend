@@ -1,11 +1,9 @@
 const { google } = require("googleapis");
 const { META_IMAGE } = require("./filepath");
+const path = require("path");
 
-const SCOPES = [
-  // "https://www.googleapis.com/auth/drive.file",
-  "https://www.googleapis.com/auth/drive",
-];
-const KEYFILEPATH = "./googledrive/client_secret.json"; // Update with your client secret path
+const SCOPES = ["https://www.googleapis.com/auth/drive"];
+const KEYFILEPATH = path.join(__dirname, "./client_secret.json"); // Update with your client secret path
 
 function authenticate() {
   const auth = new google.auth.GoogleAuth({
@@ -116,10 +114,7 @@ async function onDeleteToDrive(songId) {
 
     console.log("Successfully Deleted");
   } catch (error) {
-    console.error(
-      "Error deleting file:",
-      error.response ? error.response.data : error
-    );
+    console.error("Error deleting file:", JSON.stringify(error));
   }
 }
 
