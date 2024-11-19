@@ -5,7 +5,7 @@ const cors = require("cors");
 const express = require("express");
 const bodyParser = require("body-parser");
 const { signup } = require("./api/auth/auth");
-const uploadsongs = require("./api/main/uploadsongs");
+// const uploadsongs = require("./api/main/uploadsongs");
 const userdetails = require("./api/main/userdetails");
 const AuthCheck = require("./api/main/authchack");
 const likedSongs = require("./api/main/likedSongs");
@@ -37,7 +37,7 @@ const corsOptions = {
   allowedHeaders: "Content-Type,Authorization",
 };
 
-app.post("/send-notification", notification);
+// app.post("/send-notification", notification);
 app.use(cors(corsOptions));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -48,7 +48,7 @@ app.post("/signup", signup);
 
 // create songs
 // app.use(upload);
-app.post("/uploadsongs", uploadsongs);
+// app.post("/uploadsongs", uploadsongs);
 
 // get All songs
 app.post("/getallsongdeatils", GetallSongDeatils);
@@ -67,7 +67,7 @@ app.get("/recent", recent);
 
 // notification service
 
-app.use("/notification", notification);
+// app.use("/notification", notification);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
