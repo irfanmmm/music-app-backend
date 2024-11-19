@@ -16,7 +16,7 @@ const GetSong = require("./api/main/getSong");
 const likeSong = require("./api/main/likeSong");
 const likeSongwithSoket = require("./api/main/likeWithWebSoket");
 const health = require("./api/main/health");
-const notification = require("./api/main/notifications");
+// const notification = require("./api/main/notifications");
 
 const app = express();
 const server = http.createServer(app); // Create the HTTP server
