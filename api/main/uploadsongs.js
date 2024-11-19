@@ -1,10 +1,7 @@
 const DataBase = require("../../db/db");
 const Vibrant = require("node-vibrant");
 const tinycolor = require("tinycolor2");
-const fs = require("fs");
-const https = require("https");
 const mm = require("music-metadata-browser");
-const path = require("path");
 const { Buffer } = require("buffer");
 const {
   getFileUrl,
@@ -14,6 +11,7 @@ const {
 } = require("../../googledrive/auth");
 const { SONG_DIR } = require("../../googledrive/filepath");
 const { Readable } = require("stream");
+const NotificationSercvice = require("../../farebase/NotificationService");
 
 async function extractDarkColorsFromImage(buffer) {
   try {
@@ -42,25 +40,19 @@ const getSongMetadata = async (song, songId) => {
         try {
           const songpath = res.body;
           const metadata = await mm.parseReadableStream(songpath, "audio/mpeg");
-          console.log(metadata.common);
-
           const existingSong = await db
             .find({
               title: metadata.common.title,
             })
             .toArray();
-          console.log(existingSong.length);
-
           if (existingSong && existingSong.length > 0) {
-            await onDeleteToDrive(songId);
-            await db.deleteOne({
-              url: song,
-            });
-
-            return reject("Duplicate Song Deleted");
+            return reject("Duplicate Song");
           } else {
             if (metadata.common.picture.length === 0) {
               await onDeleteToDrive(songId);
+              await db.deleteOne({
+                url: song,
+              });
               return reject("Meta Data not getting");
             }
             const imageName =
@@ -88,7 +80,6 @@ const getSongMetadata = async (song, songId) => {
           }
         } catch (error) {
           console.log(error.message);
-
           reject("Meta Data not getting Error:", error);
         }
       })
@@ -110,6 +101,8 @@ const uploadsongs = async (req, res) => {
       });
     }
     const db = await (await DataBase()).collection("allsongsdetails");
+    const userCollection = await (await DataBase()).collection("users");
+    let newSongList = [];
 
     for (const pathofsong of allsongs.files) {
       try {
@@ -118,13 +111,31 @@ const uploadsongs = async (req, res) => {
           pathofsong.id
         );
 
-        await db.insertOne({
-          ...metadata,
-        });
+        if (metadata) {
+          await db.insertOne({
+            ...metadata,
+          });
+        }
+        newSongList.push(metadata);
+        console.log(newSongList.length + " Song Uploded");
       } catch (error) {
         console.log(error);
         continue;
       }
+    }
+    // send notification
+    const users = await userCollection.find().toArray();
+
+    for (const user of users) {
+      console.log(user.notificationid);
+      if (!user.notificationid) continue;
+      const title = "New songs";
+      const body = `New ${newSongList.length} Songs Added for Youer Playlist`;
+      await NotificationSercvice.sendNotification(
+        user.notificationid,
+        title,
+        body
+      );
     }
 
     res.json({

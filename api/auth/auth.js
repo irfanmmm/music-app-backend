@@ -8,8 +8,29 @@ const signup = async function (req, res) {
   let notificationid = req.body.notificationid;
   let token = jwt.sign({ email, profile, username }, "music-application");
   try {
-    const db = await DataBase();
-    await db.collection("user").insertOne({
+    const db = (await DataBase()).collection("users");
+
+    const user = await db.findOne({ email });
+    console.log(user);
+    
+    if (user) {
+      console.log('user alredy existe : ', user?.email);
+      
+      await db.updateOne(
+        { email },
+        {
+          $set: {
+            notificationid,
+          },
+        }
+      );
+      return res.json({
+        status: true,
+        message: "Login Succefull",
+        data: token,
+      });
+    }
+    await db.insertOne({
       profile,
       email,
       username,
@@ -21,9 +42,6 @@ const signup = async function (req, res) {
       data: token,
     });
   } catch (error) {
-
-    
-    
     let message =
       error.code === 11000 ? "User already exist" : error.toString();
 

@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const DataBase = require("../../db/db");
 
-const likeSong = async (ws, res) => {
+const likeSong = async (req, res) => {
   let token = req.headers.authorization;
   let id = req.body.id;
   let like = req.body.like;
